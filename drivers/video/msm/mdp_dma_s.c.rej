@@ -1,0 +1,12 @@
+--- drivers/video/msm/mdp_dma_s.c	2013-06-24 02:50:46.000000000 -0600
++++ drivers/video/msm/mdp_dma_s.c	2013-08-01 23:38:02.000000000 -0600
+@@ -135,9 +135,6 @@
+ 
+ void mdp_dma_s_update(struct msm_fb_data_type *mfd)
+ {
+-	if (!mfd)
+-		return;
+-
+ 	down(&mfd->dma->mutex);
+ 	if ((mfd) && (!mfd->dma->busy) && (mfd->panel_power_on)) {
+ 		down(&mfd->sem);

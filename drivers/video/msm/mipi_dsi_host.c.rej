@@ -1,0 +1,80 @@
+--- drivers/video/msm/mipi_dsi_host.c	2013-06-24 02:50:46.000000000 -0600
++++ drivers/video/msm/mipi_dsi_host.c	2013-08-01 23:38:01.000000000 -0600
+@@ -66,7 +68,6 @@
+ 
+ struct dcs_cmd_list	cmdlist;
+ 
+-void mipi_dsi_error(void);
+ #ifdef CONFIG_FB_MSM_MDP40
+ void mipi_dsi_mdp_stat_inc(int which)
+ {
+@@ -1389,19 +1354,11 @@
+ 	wmb();
+ 	MIPI_OUTP(MIPI_DSI_BASE + 0x08c, 0x01);	
+ 	wmb();
+-	dsi_cmd_dma_need_wait++;
+ 	spin_unlock_irqrestore(&dsi_mdp_lock, flags);
+ 
+-	if (dsi_cmd_dma_need_wait) {
+-		ret = wait_for_completion_timeout(&dsi_dma_comp, HZ/20);
+-		if (ret <= 0) {
+-			pr_info("%s: wait for dsi_dma complete timeout (ret=%d, busy=%d, stat=0x%x)\n",
+-			    __func__, ret, dsi_cmd_dma_need_wait, MIPI_INP(MIPI_DSI_BASE + 0x0004));
+-			if (dsi_cmd_dma_need_wait > 5) {
+-				mipi_dsi_error();
+-				mipi_dsi_sw_reset();
+-			}
+-		}
++	if (!wait_for_completion_timeout(&dsi_dma_comp,
++					msecs_to_jiffies(200))) {
++		pr_err("%s: dma timeout error\n", __func__);
+ 	}
+ 
+ 	dma_unmap_single(&dsi_dev, tp->dmap, tp->len, DMA_TO_DEVICE);
+@@ -1612,7 +1559,7 @@
+ 
+ 	if (status) {
+ 		MIPI_OUTP(MIPI_DSI_BASE + 0x0064, status);
+-		pr_info("%s: status=%x\n", __func__, status);
++		pr_debug("%s: status=%x\n", __func__, status);
+ 	}
+ }
+ 
+@@ -1623,7 +1570,7 @@
+ 	status = MIPI_INP(MIPI_DSI_BASE + 0x00bc);
+ 	if (status & 0x0111) {
+ 		MIPI_OUTP(MIPI_DSI_BASE + 0x00bc, status);
+-		pr_info("%s: status=%x\n", __func__, status);
++		pr_debug("%s: status=%x\n", __func__, status);
+ 	}
+ }
+ 
+@@ -1635,7 +1582,7 @@
+ 
+ 	if (status & 0x011111) {
+ 		MIPI_OUTP(MIPI_DSI_BASE + 0x00b0, status);
+-		pr_info("%s: status=%x\n", __func__, status);
++		pr_debug("%s: status=%x\n", __func__, status);
+ 	}
+ }
+ 
+@@ -1647,7 +1594,9 @@
+ 
+ 	if (status & 0x44444489) {
+ 		MIPI_OUTP(MIPI_DSI_BASE + 0x0008, status);
+-		pr_info("%s: status=%x\n", __func__, status);
++		pr_err("%s: Error: status=%x\n", __func__, status);
++		mipi_dsi_sw_reset();
++		mdp4_mixer_reset(0);
+ 	}
+ }
+ 
+@@ -1659,7 +1608,7 @@
+ 
+ 	if (status & 0x80000000) {
+ 		MIPI_OUTP(MIPI_DSI_BASE + 0x0004, status);
+-		pr_info("%s: status=%x\n", __func__, status);
++		pr_debug("%s: status=%x\n", __func__, status);
+ 	}
+ }
+ 

@@ -1,0 +1,73 @@
+--- drivers/video/msm/mdp4_overlay_lcdc.c	2013-06-24 02:50:46.000000000 -0600
++++ drivers/video/msm/mdp4_overlay_lcdc.c	2013-08-01 23:38:02.000000000 -0600
+@@ -275,14 +302,39 @@
+ 
+ 	if (wait) {
+ 		if (pipe->ov_blt_addr)
+-			mdp4_lcdc_wait4ov(cndx);
++			mdp4_lcdc_wait4ov(0);
+ 		else
+-			mdp4_lcdc_wait4dmap(cndx);
++			mdp4_lcdc_wait4dmap(0);
+ 	}
+ 
+ 	return cnt;
+ }
+ 
++static void mdp4_lcdc_vsync_irq_ctrl(int cndx, int enable)
++{
++	struct vsycn_ctrl *vctrl;
++	static int vsync_irq_cnt;
++
++	vctrl = &vsync_ctrl_db[cndx];
++
++	mutex_lock(&vctrl->update_lock);
++	if (enable) {
++		if (vsync_irq_cnt == 0)
++			vsync_irq_enable(INTR_PRIMARY_VSYNC,
++						MDP_PRIM_VSYNC_TERM);
++		vsync_irq_cnt++;
++	} else {
++		if (vsync_irq_cnt) {
++			vsync_irq_cnt--;
++			if (vsync_irq_cnt == 0)
++				vsync_irq_disable(INTR_PRIMARY_VSYNC,
++						MDP_PRIM_VSYNC_TERM);
++		}
++	}
++	pr_debug("%s: enable=%d cnt=%d\n", __func__, enable, vsync_irq_cnt);
++	mutex_unlock(&vctrl->update_lock);
++}
++
+ void mdp4_lcdc_vsync_ctrl(struct fb_info *info, int enable)
+ {
+ 	struct vsycn_ctrl *vctrl;
+@@ -1018,20 +1173,16 @@
+ 		mdp4_lcdc_pipe_queue(0, pipe);
+ 	}
+ 
+-	spin_lock_irqsave(&vctrl->spin_lock, flags);
+-	vctrl->expire_tick = VSYNC_EXPIRE_TICK;
+-	spin_unlock_irqrestore(&vctrl->spin_lock, flags);
+-
+ 	mdp4_overlay_mdp_perf_upd(mfd, 1);
+ 
+-	mutex_lock(&mfd->dma->ov_mutex);
+-	mdp4_lcdc_pipe_commit(cndx, 0);
+-	mutex_unlock(&mfd->dma->ov_mutex);
+-
+-	if (pipe->ov_blt_addr)
+-		mdp4_lcdc_wait4ov(cndx);
+-	else
+-		mdp4_lcdc_wait4dmap(cndx);
++	cnt = mdp4_lcdc_pipe_commit(cndx, 0);
++	if (cnt >= 0) {
++		if (pipe->ov_blt_addr)
++			mdp4_lcdc_wait4ov(cndx);
++		else
++			mdp4_lcdc_wait4dmap(cndx);
++	}
+ 
+ 	mdp4_overlay_mdp_perf_upd(mfd, 0);
++	mutex_unlock(&mfd->dma->ov_mutex);
+ }

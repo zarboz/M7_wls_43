@@ -1,0 +1,26 @@
+--- drivers/gpu/msm/adreno_a2xx.c	2013-06-24 02:50:46.000000000 -0600
++++ drivers/gpu/msm/adreno_a2xx.c	2013-08-01 23:38:02.000000000 -0600
+@@ -1609,19 +1631,17 @@
+ 		 MASTER_INT_SIGNAL__RBBM_INT_STAT)) ? 1 : 0;
+ }
+ 
+-static void a2xx_rb_init(struct adreno_device *adreno_dev,
++static int a2xx_rb_init(struct adreno_device *adreno_dev,
+ 			struct adreno_ringbuffer *rb)
+ {
+ 	unsigned int *cmds, cmds_gpu;
+ 
+ 	
+ 	cmds = adreno_ringbuffer_allocspace(rb, NULL, 19);
+-	cmds_gpu = rb->buffer_desc.gpuaddr + sizeof(uint)*(rb->wptr-19);
++	if (cmds == NULL)
++		return -ENOMEM;
+ 
+-	if(cmds == NULL || cmds_gpu == 0){
+-		KGSL_PWR_ERR(rb->device,"cmds or cmds_gpu is NULL");
+-		return;
+-	}
++	cmds_gpu = rb->buffer_desc.gpuaddr + sizeof(uint)*(rb->wptr-19);
+ 
+ 	GSL_RB_WRITE(cmds, cmds_gpu, cp_type3_packet(CP_ME_INIT, 18));
+ 	

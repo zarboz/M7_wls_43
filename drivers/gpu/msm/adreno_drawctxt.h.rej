@@ -1,0 +1,20 @@
+--- drivers/gpu/msm/adreno_drawctxt.h	2013-06-24 02:50:46.000000000 -0600
++++ drivers/gpu/msm/adreno_drawctxt.h	2013-08-01 23:38:02.000000000 -0600
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2002,2007-2012, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2002,2007-2013, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -76,7 +83,11 @@
+ 	char pid_name[TASK_COMM_LEN];
+ 	unsigned int id;
+ 	unsigned int ib_gpu_time_used;
++	unsigned int timestamp;
+ 	uint32_t flags;
++	uint32_t pagefault;
++	unsigned long pagefault_ts;
++	unsigned int type;
+ 	struct kgsl_pagetable *pagetable;
+ 	struct kgsl_memdesc gpustate;
+ 	unsigned int reg_restore[3];

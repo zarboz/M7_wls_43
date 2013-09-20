@@ -1,0 +1,10 @@
+--- include/linux/mfd/pm8xxx/pm8921-charger.h	2013-06-24 02:50:43.000000000 -0600
++++ include/linux/mfd/pm8xxx/pm8921-charger.h	2013-08-01 23:37:52.000000000 -0600
+@@ -216,6 +219,7 @@
+ 
+ 
+ int pm8921_set_hsml_target_ma(int target_ma);
++
+ int pm8921_charger_get_attr_text_with_ext_charger(char *buf, int size);
+ 
+ int pm8921_gauge_get_attr_text(char *buf, int size);

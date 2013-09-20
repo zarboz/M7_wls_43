@@ -1,0 +1,29 @@
+--- drivers/power/pm8921-bms-htc.c	2013-06-24 02:50:45.000000000 -0600
++++ drivers/power/pm8921-bms-htc.c	2013-08-01 23:38:01.000000000 -0600
+@@ -30,6 +30,7 @@
+ #include <linux/mutex.h>
+ #include <mach/board_htc.h>
+ #include <mach/htc_restart_handler.h>
++#include <asm/uaccess.h>
+ 
+ #ifdef CONFIG_HTC_BATT_8960
+ #include "mach/htc_battery_cell.h"
+@@ -3197,17 +3334,12 @@
+ 	chip->i_test = pdata->i_test;
+ 	chip->v_failure = pdata->v_failure;
+ 	chip->rconn_mohm = pdata->rconn_mohm;
++	chip->store_batt_data_soc_thre = pdata->store_batt_data_soc_thre;
+ 	chip->criteria_sw_est_ocv = pdata->criteria_sw_est_ocv;
+ 	chip->rconn_mohm_sw_est_ocv = pdata->rconn_mohm_sw_est_ocv;
+ 	chip->cc_backup_uv = 0;
+ 	chip->ocv_reading_at_100 = 0;
+ 	chip->ocv_backup_uv = 0;
+-	if (pdata->level_ocv_update_stop_begin && pdata->level_ocv_update_stop_end) {
+-		chip->level_ocv_update_stop_begin = pdata->level_ocv_update_stop_begin;
+-		chip->level_ocv_update_stop_end = pdata->level_ocv_update_stop_end;
+-		ocv_update_stop_active_mask = ocv_update_stop_active_mask |
+-										OCV_UPDATE_STOP_BIT_BATT_LEVEL;
+-	}
+ 	chip->start_percent = -EINVAL;
+ 	chip->end_percent = -EINVAL;
+ 	chip->batt_temp_channel = pdata->bms_cdata.batt_temp_channel;

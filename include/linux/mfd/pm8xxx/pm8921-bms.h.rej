@@ -1,0 +1,23 @@
+--- include/linux/mfd/pm8xxx/pm8921-bms.h	2013-06-24 02:50:43.000000000 -0600
++++ include/linux/mfd/pm8xxx/pm8921-bms.h	2013-08-01 23:37:52.000000000 -0600
+@@ -91,13 +94,18 @@
+ 	unsigned int			v_failure;
+ 	unsigned int			max_voltage_uv;
+ 	unsigned int			rconn_mohm;
++	int				store_batt_data_soc_thre;
+ 	int				enable_fcc_learning;
+-	int						level_ocv_update_stop_begin; 
+-	int						level_ocv_update_stop_end; 
+ 	unsigned int			criteria_sw_est_ocv; 
+ 	unsigned int			rconn_mohm_sw_est_ocv;
+ };
+ 
++extern int batt_stored_magic_num;
++extern int batt_stored_soc;
++extern int batt_stored_ocv_uv;
++extern int batt_stored_cc_uv;
++extern unsigned long batt_stored_time_ms;
++
+ #if defined(CONFIG_PM8921_BMS) || defined(CONFIG_PM8921_BMS_MODULE)
+ extern struct pm8921_bms_battery_data  palladium_1500_data;
+ extern struct pm8921_bms_battery_data  desay_5200_data;

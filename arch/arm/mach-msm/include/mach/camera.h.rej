@@ -1,0 +1,15 @@
+--- arch/arm/mach-msm/include/mach/camera.h	2013-06-24 02:50:45.000000000 -0600
++++ arch/arm/mach-msm/include/mach/camera.h	2013-08-01 23:38:00.000000000 -0600
+@@ -362,7 +362,11 @@
+ 	int (*a_create_subdevice)(void *, void *);
+ 	int (*a_config)(void __user *);
+ 	int is_ois_supported;
+-    int is_cal_supported; 
++	int is_cal_supported; 
++	int small_step_damping;
++	int medium_step_damping;
++	int big_step_damping;
++	int is_af_infinity_supported;
+ 	
+ 	void (*do_vcm_on_cb)(void);
+ 	void (*do_vcm_off_cb)(void);

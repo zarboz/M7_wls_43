@@ -1,0 +1,13 @@
+--- drivers/media/video/msm/actuators/rumbas_act.c	2013-06-24 02:50:45.000000000 -0600
++++ drivers/media/video/msm/actuators/rumbas_act.c	2013-08-01 23:38:00.000000000 -0600
+@@ -1778,6 +1782,10 @@
+ 		.a_create_subdevice = rumbas_act_create_subdevice,
+ 		.a_config = rumbas_act_config,
+ 		.is_ois_supported = 1,
++		.small_step_damping = 47,
++		.medium_step_damping = 75,
++		.big_step_damping = 100,
++		.is_af_infinity_supported = 0,
+ 		
+ 		.do_vcm_on_cb	= rumbas_do_cam_vcm_on_cb,
+ 		.do_vcm_off_cb	= rumbas_do_cam_vcm_off_cb,

@@ -1,0 +1,39 @@
+--- drivers/video/msm/mdp4_util.c	2013-06-24 02:50:46.000000000 -0600
++++ drivers/video/msm/mdp4_util.c	2013-08-01 23:38:02.000000000 -0600
+@@ -498,9 +645,7 @@
+ 	uint32 isr, mask, panel;
+ 	struct mdp_dma_data *dma;
+ 	struct mdp_hist_mgmt *mgmt = NULL;
+-	char *base_addr;
+ 	int i, ret;
+-	static unsigned long prev_jiffy = 0; 
+ 
+ 	mdp_is_in_isr = TRUE;
+ 
+@@ -529,17 +669,6 @@
+ 		mdp4_stat.intr_underrun_e++;
+ 	}
+ 
+-	if (isr & (INTR_PRIMARY_INTF_UDERRUN|INTR_EXTERNAL_INTF_UDERRUN)) {
+-		if (time_after(jiffies, prev_jiffy + 5 * HZ) || !prev_jiffy) {
+-			pr_info("%s: UNDERRUN isr: 0x%x (pri: %lu, ext: %lu)\n",
+-			     __func__, isr,
+-			     mdp4_stat.intr_underrun_p, mdp4_stat.intr_underrun_e);
+-
+-			mdp4_overlay_mdp_perf_dump();
+-			prev_jiffy = jiffies;
+-		}
+-	}
+-
+ 	isr &= mask;
+ 
+ 	if (isr == 0)
+@@ -2613,7 +2351,7 @@
+ 		break;
+ 
+ 	default:
+-		return ret;
++		break;
+ 	}
+ 
+ 	if (0x8 & cfg_ptr->ops)

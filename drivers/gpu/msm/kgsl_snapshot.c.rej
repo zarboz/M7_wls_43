@@ -1,0 +1,79 @@
+--- drivers/gpu/msm/kgsl_snapshot.c	2013-06-24 02:50:46.000000000 -0600
++++ drivers/gpu/msm/kgsl_snapshot.c	2013-08-01 23:38:02.000000000 -0600
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2012, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -321,7 +342,7 @@
+ 	if (entry->memtype != KGSL_MEM_ENTRY_KERNEL) {
+ 		KGSL_DRV_ERR(device,
+ 			"Only internal GPU buffers can be frozen\n");
+-		return -EINVAL;
++		goto err_put;
+ 	}
+ 
+ 
+@@ -338,36 +359,33 @@
+ 	if (size + offset > entry->memdesc.size) {
+ 		KGSL_DRV_ERR(device, "Invalid size for GPU buffer %8.8X\n",
+ 				gpuaddr);
+-		return -EINVAL;
++		goto err_put;
+ 	}
+ 
+ 	
+ 	list_for_each_entry(obj, &device->snapshot_obj_list, node) {
+ 		if (obj->gpuaddr == gpuaddr && obj->ptbase == ptbase) {
+ 			
+-			if (obj->size != size)
++			if (obj->size < size)
+ 				obj->size = size;
+-
+-			return 0;
++			ret = 0;
++			goto err_put;
+ 		}
+ 	}
+ 
+ 	if (kgsl_memdesc_map(&entry->memdesc) == NULL) {
+ 		KGSL_DRV_ERR(device, "Unable to map GPU buffer %X\n",
+ 				gpuaddr);
+-		return -EINVAL;
++		goto err_put;
+ 	}
+ 
+ 	obj = kzalloc(sizeof(*obj), GFP_KERNEL);
+ 
+ 	if (obj == NULL) {
+ 		KGSL_DRV_ERR(device, "Unable to allocate memory\n");
+-		return -EINVAL;
++		goto err_put;
+ 	}
+ 
+-	
+-	kgsl_mem_entry_get(entry);
+-
+ 	obj->type = type;
+ 	obj->entry = entry;
+ 	obj->gpuaddr = gpuaddr;
+@@ -641,6 +680,7 @@
+ 
+ SNAPSHOT_ATTR(trigger, 0600, NULL, trigger_store);
+ SNAPSHOT_ATTR(timestamp, 0444, timestamp_show, NULL);
++SNAPSHOT_ATTR(no_panic, 0644, no_panic_show, no_panic_store);
+ 
+ static void snapshot_sysfs_release(struct kobject *kobj)
+ {
+@@ -717,6 +757,10 @@
+ 		goto done;
+ 
+ 	ret  = sysfs_create_file(&device->snapshot_kobj, &attr_timestamp.attr);
++	if (ret)
++		goto done;
++
++	ret  = sysfs_create_file(&device->snapshot_kobj, &attr_no_panic.attr);
+ 
+ done:
+ 	return ret;

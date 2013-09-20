@@ -1,0 +1,15 @@
+--- drivers/gpu/Makefile	2013-06-24 02:50:48.000000000 -0600
++++ drivers/gpu/Makefile	2013-08-01 23:38:05.000000000 -0600
+@@ -4,6 +4,12 @@
+     obj-y += msm/
+ endif
+ 
++ifeq ($(CONFIG_MSM_KGSL_JB_MR1),y)
++    obj-y += msm_mr1/
++endif
++
+ ifeq ($(CONFIG_MSM_KGSL_JB_REL_RB31),y)
+     obj-y += msm_rb31/
+ endif
++
++

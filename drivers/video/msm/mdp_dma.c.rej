@@ -1,0 +1,12 @@
+--- drivers/video/msm/mdp_dma.c	2013-06-24 02:50:46.000000000 -0600
++++ drivers/video/msm/mdp_dma.c	2013-08-01 23:38:01.000000000 -0600
+@@ -418,9 +418,6 @@
+ 	MDPIBUF *iBuf;
+ 	uint32 upper_height;
+ 
+-	if (!mfd)
+-		return;
+-
+ 	if (mfd->panel.type == EXT_MDDI_PANEL) {
+ 		mdp_dma2_update_sub(mfd);
+ 		return;

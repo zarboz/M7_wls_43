@@ -1,0 +1,12 @@
+--- arch/arm/mach-msm/htc_util.c	2013-06-24 02:50:43.000000000 -0600
++++ arch/arm/mach-msm/htc_util.c	2013-08-01 23:37:52.000000000 -0600
+@@ -704,6 +704,9 @@
+ 	struct task_cputime cputime;
+ 	int dump_top_stack = 0;
+ 	int pid_cnt = 0;    
++#ifdef CONFIG_DEBUG_KSWAPD
++	struct task_struct *kswapd_t = NULL;
++#endif
+ 
+ 	if (task_ptr_array == NULL ||
+ 			curr_proc_delta == NULL ||

@@ -1,0 +1,12 @@
+--- mm/page_alloc.c	2013-06-24 02:50:44.000000000 -0600
++++ mm/page_alloc.c	2013-08-01 23:37:59.000000000 -0600
+@@ -1617,7 +1617,8 @@
+ {
+ 	struct page *page;
+ 
+-	if (!order || (gfp_mask & __GFP_NO_COMPACT))
++	if (!order || (gfp_mask & __GFP_NO_COMPACT) ||
++		(order > PAGE_ALLOC_COSTLY_ORDER))
+ 		return NULL;
+ 
+ 	if (compaction_deferred(preferred_zone, order)) {

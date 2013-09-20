@@ -1,0 +1,58 @@
+--- drivers/gpu/msm/adreno_snapshot.c	2013-06-24 02:50:46.000000000 -0600
++++ drivers/gpu/msm/adreno_snapshot.c	2013-08-01 23:38:02.000000000 -0600
+@@ -1,4 +1,4 @@
+-/* Copyright (c) 2012, The Linux Foundation. All rights reserved.
++/* Copyright (c) 2012-2013, The Linux Foundation. All rights reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+  * it under the terms of the GNU General Public License version 2 and
+@@ -465,23 +497,12 @@
+ 			if (adreno_cmd_is_ib(src[i])) {
+ 				unsigned int gpuaddr = src[i + 1];
+ 				unsigned int size = src[i + 2];
+-				unsigned int ibbase;
+-
+-				
+-				kgsl_regread(device, REG_CP_IB2_BASE, &ibbase);
+ 
++				ret = parse_ib(device, ptbase, gpuaddr, size);
+ 
+-				if (ibbase == gpuaddr)
+-					push_object(device,
+-						SNAPSHOT_OBJ_TYPE_IB, ptbase,
+-						gpuaddr, size);
+-				else {
+-					ret = ib_add_gpu_object(device,
+-						ptbase, gpuaddr, size);
+-
+-					if (ret < 0)
+-						goto done;
+-				}
++				
++				if (ret < 0)
++					goto done;
+ 			} else {
+ 				ret = ib_parse_type3(device, &src[i], ptbase);
+ 
+@@ -681,15 +696,14 @@
+ 				continue;
+ 
+ 			if (adreno_cmd_is_ib(*src))
+-				push_object(device, SNAPSHOT_OBJ_TYPE_IB,
+-					obj->ptbase, src[1], src[2]);
+-			else {
++				ret = parse_ib(device, obj->ptbase, src[1],
++					src[2]);
++			else
+ 				ret = ib_parse_type3(device, src, obj->ptbase);
+ 
+-				
+-				if (ret < 0)
+-					break;
+-			}
++			
++			if (ret < 0)
++				break;
+ 		}
+ 	}
+ 

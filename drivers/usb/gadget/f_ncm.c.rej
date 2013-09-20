@@ -1,0 +1,20 @@
+--- drivers/usb/gadget/f_ncm.c	2013-06-24 02:50:44.000000000 -0600
++++ drivers/usb/gadget/f_ncm.c	2013-08-01 23:38:00.000000000 -0600
+@@ -70,7 +73,7 @@
+ }
+ 
+ 
+-#define NTB_DEFAULT_IN_SIZE_NCM	9000
++#define NTB_DEFAULT_IN_SIZE_NCM 16384
+ #define NTB_OUT_SIZE_NCM		16384
+ 
+ 
+@@ -568,7 +596,7 @@
+ 		value = w_length > sizeof ntb_parameters_ncm ?
+ 			sizeof ntb_parameters_ncm : w_length;
+ 		memcpy(req->buf, &ntb_parameters_ncm, value);
+-		VDBG(cdev, "Host asked NTB parameters\n");
++		DBG(cdev, "Host asked NTB parameters\n");
+ 		break;
+ 
+ 	case ((USB_DIR_IN | USB_TYPE_CLASS | USB_RECIP_INTERFACE) << 8)

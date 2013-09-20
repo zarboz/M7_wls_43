@@ -1,0 +1,45 @@
+--- drivers/gpu/msm/adreno_a3xx_snapshot.c	2013-06-24 02:50:46.000000000 -0600
++++ drivers/gpu/msm/adreno_a3xx_snapshot.c	2013-08-01 23:38:02.000000000 -0600
+@@ -300,12 +305,37 @@
+ 	struct kgsl_snapshot_registers_list *list,
+ 	struct adreno_device *adreno_dev)
+ {
+-	
+-	if (!adreno_is_a3xx(adreno_dev)) {
+-		regs[list->count].regs = (unsigned int *) a3xx_hlsq_registers;
+-		regs[list->count].count = a3xx_hlsq_registers_count;
+-		list->count++;
++	struct kgsl_device *device = &adreno_dev->dev;
++
++
++	if (adreno_is_a330(adreno_dev)) {
++		unsigned int stall_context_full = 0;
++
++		_rbbm_debug_bus_read(device, RBBM_BLOCK_ID_HLSQ, 49,
++				&stall_context_full);
++		stall_context_full &= 0x08000000;
++
++		if (stall_context_full)
++			return;
++	} else {
++		unsigned int next_pif = 0;
++
++		
++		_rbbm_debug_bus_read(device, RBBM_BLOCK_ID_HLSQ, 4, &next_pif);
++		next_pif &= 0x1f;
++		if (next_pif != 0 && next_pif != 1 && next_pif != 28)
++			return;
++
++		
++		_rbbm_debug_bus_read(device, RBBM_BLOCK_ID_HLSQ, 7, &next_pif);
++		next_pif &= 0x3f;
++		if (next_pif != 0 && next_pif != 1 && next_pif != 10)
++			return;
+ 	}
++
++	regs[list->count].regs = (unsigned int *) a3xx_hlsq_registers;
++	regs[list->count].count = a3xx_hlsq_registers_count;
++	list->count++;
+ }
+ 
+ static void _snapshot_a330_regs(struct kgsl_snapshot_registers *regs,
